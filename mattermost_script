@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# make sure to create the mattermost database and user in postgresql before executing this script
+# by running the following commands:
+
+    # sudo --login --user postgres
+
+    # psql
+
+    #CREATE DATABASE mattermost2;
+
+    #CREATE USER <insert username> WITH PASSWORD <'insert password'>;
+
+    #GRANT ALL PRIVILEGES ON DATABASE mattermost to <username>;
+
+    #\q
+
+    #exit
+
+
+
+sudo useradd --system --user-group mattermost
+
+# installing mattermost
+wget https://releases.mattermost.com/5.37.0/mattermost-5.37.0-linux-amd64.tar.gz
+
+tar xvf mattermost-5.37.0-linux-amd64.tar.gz
+
+# move the mattermost database to the /opt folder
+sudo mv mattermost /opt
+
+sudo chown -R mattermost:mattermost /opt/mattermost
+
+sudo chmod -R g+w /opt/mattermost
+
+# call script.py so that key-value pairs in config.json can be modified
+sudo python3 script.py
+
+# copy text from system_config to mattermost.service
+sudo cp system_config /etc/systemd/system/mattermost.service
+
+sudo systemctl daemon-reload
+sudo systemctl start mattermost.service
+sudo systemctl enable mattermost.service
